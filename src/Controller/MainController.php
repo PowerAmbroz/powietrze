@@ -29,7 +29,7 @@ $a = 0;
 
 //        Lista miast i stacji pomiarowych w danym mieście
         dump($main_arr);
-        $stationId = $main_arr[453];
+        $stationId = $main_arr[1064];
 //        dump($stationId);die;
         foreach($stationId as $id){
 //            dump($id);die;
