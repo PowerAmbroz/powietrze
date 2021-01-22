@@ -6,7 +6,7 @@ namespace App\Services;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class AllStationData
+class ApiData
 {
     private $client;
 
@@ -14,13 +14,26 @@ class AllStationData
         $this->client = $client;
     }
 
-    public function getAllStationData(): array
+    public function getApiData($stationId = null, $air = null) : array
     {
 
+        if($stationId === null){
+            $url = 'http://api.gios.gov.pl/pjp-api/rest/station/findAll';
+        }else{
+            $url = 'http://api.gios.gov.pl/pjp-api/rest/station/sensors/'.$stationId;
+        }
+
+        if($air != null){
+            $url = 'http://api.gios.gov.pl/pjp-api/rest/aqindex/getIndex/'.$air;
+
+        }
+
+//        if($sensorId != null) {
+//            $url = 'http://api.gios.gov.pl/pjp-api/rest/data/getData/'.$sensorId;
+//        }
         $response = $this->client->request(
             'GET',
-//            'https://api.github.com/repos/symfony/symfony-docs'
-            'http://api.gios.gov.pl/pjp-api/rest/station/findAll'
+            $url
         );
 
         $statusCode = $response->getStatusCode();
@@ -34,14 +47,5 @@ class AllStationData
 
         return $content;
 
-//        $messages = [
-//            'You did it! You updated the system! Amazing!',
-//            'That was one of the coolest updates I\'ve seen all day!',
-//            'Great work! Keep going!',
-//        ];
-//
-//        $index = array_rand($messages);
-//
-//        return $messages[$index];
     }
 }
