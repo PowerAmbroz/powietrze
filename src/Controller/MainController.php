@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Services\ApiData;
+use App\Services\getAirPolutionData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -12,20 +12,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
 {
-    protected $fullData;
-
+    private $fullData;
+    private $stationDetails;
     /**
      * @Route("/", name="main")
-     * @param ApiData $apiData
+     * @param getAirPolutionData $apiData
      * @param Request $request
      * @return Response
      */
 
 
-    public function index(ApiData $apiData, Request $request): Response
+    public function index(getAirPolutionData $apiData, Request $request): Response
     {
 
-        $stationData = $apiData->getApiData();
+        $stationData = $apiData->getAirPolutionData();
 
         foreach($stationData as $city){
 
@@ -53,41 +53,55 @@ class MainController extends AbstractController
             $id = $form->getData()['city'];
             $stationId = $dupli_arr[$id];
 
-            foreach($stationId as $id){
+            $stationsData = $this->getStationData($apiData, $stationId);
 
-                $stationDetails[$id['id']] = array(
-                    'stationId' => $id['id'],
-                    'stationName' => $id['stationName'],
-                    'gegrLat' => $id['gegrLat'],
-                    'gegrLon' => $id['gegrLon'],
-                    'addressStreet' => $id['addressStreet'],
-                    'whatMeasure' => '',
-                    'pollution' => ''
-                ) ;
+            $data_arr = $this->stationMrasureData($stationsData);
 
-                $stationsData [] = $apiData->getApiData($id['id']);
-            }
+            $data = array_replace_recursive($this->stationDetails, $data_arr);
 
-            foreach($stationsData as $station){
+            $this->getCityAirPolutionData($data_arr, $data, $apiData);
 
-                foreach($station as $data){
-                    $data_arr[$data['stationId']]['whatMeasure'][] = $data['param'];
-                }
-            }
-
-            $data = array_replace_recursive($stationDetails, $data_arr);
-
-            foreach($data_arr as $key => $value){
-                $air_data [$key]['pollution'] = $apiData->getApiData(null, $key);
-            }
-
-            $this->fullData = array_replace_recursive($data, $air_data);
         }
 
         return $this->render('main/index.html.twig', [
-            'controller_name' => 'MainController',
             'city' => $form->createView(),
             'stationDetails' => $this->fullData
         ]);
+    }
+
+    public function getStationData($apiData, $stationId){
+        foreach($stationId as $id){
+
+            $this->stationDetails[$id['id']] = array(
+                'stationId' => $id['id'],
+                'stationName' => $id['stationName'],
+                'gegrLat' => $id['gegrLat'],
+                'gegrLon' => $id['gegrLon'],
+                'addressStreet' => $id['addressStreet'],
+                'whatMeasure' => '',
+                'pollution' => ''
+            ) ;
+
+            $stationsData [] = $apiData->getAirPolutionData($id['id']);
+        }
+        return $stationsData;
+    }
+
+    public function stationMrasureData($stationsData){
+        foreach($stationsData as $station){
+
+            foreach($station as $data){
+                $data_arr[$data['stationId']]['whatMeasure'][] = $data['param'];
+            }
+        }
+        return $data_arr;
+    }
+
+    public function getCityAirPolutionData($data_arr, $data, $apiData){
+        foreach($data_arr as $key => $value){
+            $air_data [$key]['pollution'] = $apiData->getAirPolutionData(null, $key);
+        }
+
+        $this->fullData = array_replace_recursive($data, $air_data);
     }
 }

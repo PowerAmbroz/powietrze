@@ -6,7 +6,7 @@ namespace App\Services;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ApiData
+class getAirPolutionData
 {
     private $client;
 
@@ -14,7 +14,7 @@ class ApiData
         $this->client = $client;
     }
 
-    public function getApiData($stationId = null, $air = null) : array
+    public function getAirPolutionData($stationId = null, $air = null) : array
     {
 
         if($stationId === null){
