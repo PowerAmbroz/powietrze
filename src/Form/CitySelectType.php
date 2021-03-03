@@ -13,7 +13,6 @@ class CitySelectType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        dump($options['data']);
         $builder
             ->add('city', ChoiceType::class,[
                 'choices' => $options['data'],
