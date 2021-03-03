@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
+use App\Form\CitySelectType;
 use App\Services\getAirPolutionData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +13,7 @@ class MainController extends AbstractController
 {
     private $fullData;
     private $stationDetails;
+    private $main_arr;
     /**
      * @Route("/", name="main")
      * @param getAirPolutionData $apiData
@@ -33,19 +33,7 @@ class MainController extends AbstractController
                 $dupli_arr[$city['city']['id']][] = $city;
         }
 
-        $form = $this->createFormBuilder()
-            ->add('city', ChoiceType::class,[
-                'choices' => $main_arr,
-                'attr' => [
-                    'class' => 'form-control'
-                ]
-            ])
-            ->add('submit', SubmitType::class,[
-                'attr' => [
-                    'class' => 'btn btn-primary'
-                ]
-            ])
-            ->getForm();
+        $form = $this->createForm(CitySelectType::class, $main_arr);
 
         $form->handleRequest($request);
 
